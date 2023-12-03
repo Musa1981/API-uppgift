@@ -43,13 +43,18 @@ app.get('/users', (req, res) => {
 // Hämta en specifik användare med id eller användarnamn
 app.get('/users/:identifier', (req, res) => {
   const identifier = req.params.identifier;
-  const query = 'SELECT * FROM users WHERE id = ? OR username = ?';
+  console.log('Identifier value:', identifier);
+
+  const query = 'SELECT * FROM users WHERE id = ? OR LOWER(username) = LOWER(?)';
+  console.log('SQL query:', query);
 
   connection.query(query, [identifier, identifier], (err, results) => {
     if (err) {
       console.error('Error fetching user:', err);
       res.status(500).json({ error: 'Internal Server Error' });
     } else {
+      console.log('Query results:', results);  // Lägg till denna rad för att logga resultaten
+
       if (results.length === 0) {
         res.status(404).json({ error: 'User not found' });
       } else {
@@ -58,6 +63,8 @@ app.get('/users/:identifier', (req, res) => {
     }
   });
 });
+
+
 
 // Skapa en ny användare med hashat lösenord
 app.post('/users', async (req, res) => {
