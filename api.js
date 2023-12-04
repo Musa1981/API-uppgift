@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
@@ -124,7 +125,6 @@ app.put('/users/:id', async (req, res) => {
   }
 });
 
-// Logga in och returnera användarobjektet utan lösenordsfältet
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
@@ -140,8 +140,11 @@ app.post('/login', async (req, res) => {
         const passwordMatch = await bcrypt.compare(password, user.password);
 
         if (passwordMatch) {
-          delete user.password; // Undvik att skicka lösenordet i responsen
-          res.json(user);
+          // Skapa ett JWT-token
+          const token = jwt.sign({ userId: user.id, username: user.username }, 'my_jwt_secret', { expiresIn: '1h' });
+
+          // Returnera token
+          res.json({ token });
         } else {
           res.status(401).json({ error: 'Invalid credentials' });
         }
@@ -149,6 +152,19 @@ app.post('/login', async (req, res) => {
     }
   });
 });
+
+function authenticateToken(req, res, next) {
+  const token = req.header('Authorization');
+  if (!token) return res.status(401).json({ error: 'Access denied' });
+
+  jwt.verify(token, 'din_jwt_hemlighet', (err, user) => {
+    if (err) return res.status(403).json({ error: 'Invalid token' });
+
+    req.user = user;
+    next();
+  });
+}
+
 
 // Skapa en DELETE-route för att ta bort en användare
 app.delete('/users/:id', (req, res) => {
