@@ -104,10 +104,11 @@ app.put('/users/:id', async (req, res) => {
   try {
     // Hasha lösenordet innan uppdatering
     updatedUser.password = await hashPassword(updatedUser.password);
+    console.log(updatedUser.password);
 
     connection.query(
-      'UPDATE users SET username = ?, password = ?, name = ?, email = ? WHERE id = ?',
-      [updatedUser.username, updatedUser.password, updatedUser.name, updatedUser.email, resourceId],
+      'UPDATE users SET username = ?, password = ?, name = ?, email = ? WHERE id = ' + resourceId,
+      [updatedUser.username, updatedUser.password, updatedUser.name, updatedUser.email],
       (err, results) => {
         if (err) {
           console.error('Error updating user:', err);
