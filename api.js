@@ -54,7 +54,7 @@ app.get('/users/:identifier', (req, res) => {
       console.error('Error fetching user:', err);
       res.status(500).json({ error: 'Internal Server Error' });
     } else {
-      console.log('Query results:', results);  // Lägg till denna rad för att logga resultaten
+      console.log('Query results:', results);  
 
       if (results.length === 0) {
         res.status(404).json({ error: 'User not found' });
@@ -81,7 +81,7 @@ app.post('/users', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
       } else {
         newUser.id = results.insertId;
-        delete newUser.password; // Undvik att skicka lösenordet i responsen
+        delete newUser.password; 
         res.status(201).json(newUser);
       }
     });
